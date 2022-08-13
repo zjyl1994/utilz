@@ -1,4 +1,4 @@
-package worker
+package utilz
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Do[K any](ctx context.Context, workerNum int, inputs []K,
+func WorkerDo[K any](ctx context.Context, workerNum int, inputs []K,
 	fn func(context.Context, K) error) error {
 	jobCh := make(chan K, workerNum)
 	waitg, ctx := errgroup.WithContext(ctx)
@@ -29,7 +29,7 @@ func Do[K any](ctx context.Context, workerNum int, inputs []K,
 	return waitg.Wait()
 }
 
-func Result[K, V any](ctx context.Context, workerNum int, inputs []K,
+func WorkerResult[K, V any](ctx context.Context, workerNum int, inputs []K,
 	fn func(context.Context, K) (V, error)) ([]V, error) {
 	var resultLock sync.Mutex
 	results := make([]V, 0, len(inputs))

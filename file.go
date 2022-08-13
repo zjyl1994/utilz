@@ -1,4 +1,4 @@
-package file
+package utilz
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func Exist(path string) bool {
+func FileExist(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true

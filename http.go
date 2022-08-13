@@ -1,33 +1,35 @@
-package http
+package utilz
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
 )
 
-const defaultTimeout = 5 * time.Second
+const defaultHttpTimeout = 5 * time.Second
 
-func Get(url string) ([]byte, error) {
-	return AdvancedGet(url, nil, defaultTimeout)
+func HttpGet(url string) ([]byte, error) {
+	return HttpAdvancedGet(url, nil, defaultHttpTimeout)
 }
 
-func Post(url string, body []byte) ([]byte, error) {
-	return AdvancedPost(url, nil, body, defaultTimeout)
+func HttpPost(url string, body []byte) ([]byte, error) {
+	return HttpAdvancedPost(url, nil, body, defaultHttpTimeout)
 }
 
-func PostJSON(url string, data any) ([]byte, error) {
+func HttpPostJSON(url string, data any) ([]byte, error) {
 	body, err := jsoniter.Marshal(data)
 	if err != nil {
 		return nil, err
 	}
-	return AdvancedPost(url, map[string]string{"Content-Type": "application/json"}, body, defaultTimeout)
+	return HttpAdvancedPost(url, map[string]string{"Content-Type": "application/json"}, body, defaultHttpTimeout)
 }
 
-func AdvancedGet(url string, header map[string]string, timeout time.Duration) ([]byte, error) {
+func HttpAdvancedGet(url string, header map[string]string, timeout time.Duration) ([]byte, error) {
 	hc := http.Client{Timeout: timeout}
 	var resp *http.Response
 	var err error
@@ -53,7 +55,7 @@ func AdvancedGet(url string, header map[string]string, timeout time.Duration) ([
 	return ioutil.ReadAll(resp.Body)
 }
 
-func AdvancedPost(url string, header map[string]string, body []byte, timeout time.Duration) ([]byte, error) {
+func HttpAdvancedPost(url string, header map[string]string, body []byte, timeout time.Duration) ([]byte, error) {
 	hc := http.Client{Timeout: timeout}
 	var resp *http.Response
 	var err error
@@ -79,4 +81,30 @@ func AdvancedPost(url string, header map[string]string, body []byte, timeout tim
 	}
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
+}
+
+func Download(url string, timeout time.Duration) ([]byte, error) {
+	hc := http.Client{Timeout: timeout}
+	resp, err := hc.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func DownloadFile(url, path string, timeout time.Duration) error {
+	hc := http.Client{Timeout: timeout}
+	resp, err := hc.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = io.Copy(f, resp.Body)
+	return err
 }

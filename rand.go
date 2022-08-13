@@ -1,4 +1,4 @@
-package rand
+package utilz
 
 import (
 	crand "crypto/rand"

@@ -1,4 +1,4 @@
-package time
+package utilz
 
 import (
 	"errors"
@@ -12,7 +12,23 @@ const (
 
 var ErrFormatNotSupport = errors.New("format not support")
 
-func Parse(s string) (time.Time, error) {
+func Now() string {
+	return time.Now().Format(TimeFormat)
+}
+
+func Today() string {
+	return time.Now().Format(DateFormat)
+}
+
+func Yesterday() string {
+	return time.Now().AddDate(0, 0, -1).Format(DateFormat)
+}
+
+func Time() int64 {
+	return time.Now().Unix()
+}
+
+func ParseTime(s string) (time.Time, error) {
 	t, err := time.Parse(TimeFormat, s)
 	if err == nil {
 		return t, nil
