@@ -47,3 +47,11 @@ func Max[T Number](nums ...T) T {
 
 	return max
 }
+
+func PageOffset[T Integer](pageNum, pageSize T) T {
+	return (pageNum - 1) * pageSize
+}
+
+func PageCount[T Integer](totalRows, pageSize T) T {
+	return CeilDiv(totalRows, pageSize)
+}
