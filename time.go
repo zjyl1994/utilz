@@ -29,11 +29,11 @@ func Time() int64 {
 }
 
 func ParseTime(s string) (time.Time, error) {
-	t, err := time.Parse(TimeFormat, s)
+	t, err := time.ParseInLocation(TimeFormat, s, time.Local)
 	if err == nil {
 		return t, nil
 	}
-	t, err = time.Parse(DateFormat, s)
+	t, err = time.ParseInLocation(DateFormat, s, time.Local)
 	if err == nil {
 		return t, nil
 	}
@@ -46,4 +46,24 @@ func FormatDate(t time.Time) string {
 
 func FormatTime(t time.Time) string {
 	return t.Format(TimeFormat)
+}
+
+func TimeMax(times ...time.Time) time.Time {
+	result := times[0]
+	for _, t := range times {
+		if t.After(result) {
+			result = t
+		}
+	}
+	return result
+}
+
+func TimeMin(times ...time.Time) time.Time {
+	result := times[0]
+	for _, t := range times {
+		if t.Before(result) {
+			result = t
+		}
+	}
+	return result
 }
