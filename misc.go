@@ -1,6 +1,7 @@
 package utilz
 
 import (
+	"bytes"
 	"os/exec"
 )
 
@@ -12,11 +13,20 @@ func If[T any](condition bool, ifOutput T, elseOutput T) T {
 	return elseOutput
 }
 
-func Exec(command string, args ...string) (string, error) {
+func Exec(command string, args []string, stdin []byte) ([]byte, error) {
 	path, err := exec.LookPath(command)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	output, err := exec.Command(path, args...).CombinedOutput()
-	return string(output), err
+	cmd := exec.Command(path, args...)
+	if len(stdin) > 0 {
+		var output bytes.Buffer
+		cmd.Stdin = bytes.NewReader(stdin)
+		cmd.Stdout = &output
+		cmd.Stderr = &output
+		err := cmd.Run()
+		return output.Bytes(), err
+	} else {
+		return cmd.CombinedOutput()
+	}
 }
