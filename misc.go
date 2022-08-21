@@ -15,11 +15,8 @@ func If[T any](condition bool, ifOutput T, elseOutput T) T {
 func Exec(command string, args ...string) (string, error) {
 	path, err := exec.LookPath(command)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	output, err := exec.Command(path, args...).CombinedOutput()
-	if err != nil {
-		return "", nil
-	}
-	return string(output), nil
+	return string(output), err
 }
