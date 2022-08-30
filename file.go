@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"time"
 )
 
 func FileExist(path string) bool {
@@ -56,4 +57,22 @@ func CopyFile(src, dst string) error {
 	defer output.Close()
 	_, err = io.Copy(output, input)
 	return err
+}
+
+func TouchFile(fileName string) error {
+	_, err := os.Stat(fileName)
+	if os.IsNotExist(err) {
+		file, err := os.Create(fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+	} else {
+		currentTime := time.Now().Local()
+		err = os.Chtimes(fileName, currentTime, currentTime)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
