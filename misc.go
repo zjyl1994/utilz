@@ -2,7 +2,9 @@ package utilz
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
+	"strings"
 )
 
 func If[T any](condition bool, ifOutput T, elseOutput T) T {
@@ -29,4 +31,12 @@ func Exec(command string, args []string, stdin []byte) ([]byte, error) {
 	} else {
 		return cmd.CombinedOutput()
 	}
+}
+
+func GetEnvString(prefix, name string) string {
+	return os.Getenv(strings.ToUpper(prefix + "_" + name))
+}
+
+func GetEnvBool(prefix, name string) bool {
+	return strings.EqualFold(GetEnvString(prefix, name), "true")
 }
