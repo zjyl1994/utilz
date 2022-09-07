@@ -20,7 +20,7 @@ func (m KeyVals) GetString(key string) string {
 }
 
 func (m KeyVals) GetBool(key string) bool {
-	return strings.EqualFold(m.GetString(key), "true")
+	return StringToBool(m.GetString(key))
 }
 
 func WriteKeyValueToString(data KeyVals) string {
