@@ -2,9 +2,13 @@ package utilz
 
 import (
 	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/subtle"
 	"errors"
 	"fmt"
+
+	"golang.org/x/crypto/scrypt"
 )
 
 func Pkcs7Pad(buf []byte, size int) ([]byte, error) {
@@ -42,4 +46,45 @@ func Pkcs7Unpad(buf []byte) ([]byte, error) {
 	}
 
 	return buf[:len(buf)-int(padLen)], nil
+}
+
+const aesNonceSize = 12
+
+func AesEncode(key, plainText []byte) ([]byte, error) {
+	nonce := RandBytes(aesNonceSize)
+
+	dk, err := scrypt.Key(key, nonce, 32768, 8, 1, 32)
+	if err != nil {
+		return nil, err
+	}
+	block, err := aes.NewCipher(dk)
+	if err != nil {
+		return nil, err
+	}
+	aesgcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+	return aesgcm.Seal(nonce, nonce, plainText, nil), nil
+}
+
+func AesDecode(key, cipherText []byte) ([]byte, error) {
+	if len(cipherText) < aesNonceSize {
+		return nil, errors.New("ciphertext too short")
+	}
+	nonce, ciphertext := cipherText[:aesNonceSize], cipherText[aesNonceSize:]
+
+	dk, err := scrypt.Key(key, nonce, 32768, 8, 1, 32)
+	if err != nil {
+		return nil, err
+	}
+	c, err := aes.NewCipher(dk)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		return nil, err
+	}
+	return gcm.Open(nil, nonce, ciphertext, nil)
 }
