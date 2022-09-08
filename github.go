@@ -36,21 +36,21 @@ func ListGithubRelease(owner, repo string) ([]GithubReleaseItem, error) {
 	return resp, nil
 }
 
-func GetGithubLastestRelease(owner, repo, filename string) (string, error) {
+func GetGithubLastestRelease(owner, repo, filename string) (tag, url string, err error) {
 	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
 	var resp GithubReleaseItem
 	bResp, err := HttpGet(apiURL)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	err = FromJSON(bResp, &resp)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	for _, asset := range resp.Assets {
 		if asset.Name == filename {
-			return asset.DownloadURL, nil
+			return resp.TagName, asset.DownloadURL, nil
 		}
 	}
-	return "", fmt.Errorf("%s not found", filename)
+	return "", "", fmt.Errorf("%s not found", filename)
 }
