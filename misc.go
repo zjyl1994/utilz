@@ -2,6 +2,8 @@ package utilz
 
 import (
 	"bytes"
+	"io"
+	"os"
 	"os/exec"
 )
 
@@ -28,5 +30,12 @@ func Exec(command string, args []string, stdin []byte) ([]byte, error) {
 		return output.Bytes(), err
 	} else {
 		return cmd.CombinedOutput()
+	}
+}
+
+func Main(fn func() error) {
+	if err := fn(); err != nil {
+		io.WriteString(os.Stderr, err.Error())
+		os.Exit(1)
 	}
 }
