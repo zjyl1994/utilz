@@ -2,7 +2,7 @@ package utilz
 
 import (
 	"bytes"
-	"io"
+	"fmt"
 	"os"
 	"os/exec"
 )
@@ -35,7 +35,7 @@ func Exec(command string, args []string, stdin []byte) ([]byte, error) {
 
 func Main(fn func() error) {
 	if err := fn(); err != nil {
-		io.WriteString(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 }
